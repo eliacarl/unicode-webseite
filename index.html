@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Text zu Unicode</title>
+  <title>Text & Unicode Converter</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -10,36 +10,100 @@
       background: #f5f5f5;
       text-align: center;
     }
-    textarea, input {
+    textarea {
       width: 80%;
       padding: 10px;
       margin: 10px 0;
       font-size: 1rem;
+      resize: vertical;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 1rem;
+      cursor: pointer;
     }
     .output {
       background: #fff;
       padding: 15px;
       border-radius: 5px;
-      word-break: break-all;
+      word-break: break-word;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      position: relative;
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .copyBtn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 0.8rem;
+      padding: 5px 10px;
+    }
+    h1 {
+      margin-bottom: 5px;
+    }
+    h3 {
+      margin-top: 30px;
     }
   </style>
 </head>
 <body>
-  <h1>Text in Unicode umwandeln</h1>
-  <textarea id="textInput" rows="4" placeholder="Gib hier deinen Text ein..."></textarea><br>
-  <button onclick="convertToUnicode()">Umwandeln</button>
-  <h3>Unicode-Ausgabe:</h3>
-  <div class="output" id="outputArea"></div>
+
+  <h1>Text ⇄ Unicode Converter</h1>
+
+  <!-- TEXT TO UNICODE -->
+  <h3>Text to Unicode</h3>
+  <textarea id="textInput" rows="4" placeholder="Enter your text here..."></textarea>
+  <div class="output">
+    <button class="copyBtn" onclick="copyToClipboard('unicodeOutput')">Copy</button>
+    <span id="unicodeOutput"></span>
+  </div>
+
+  <!-- UNICODE TO TEXT -->
+  <h3>Unicode to Text</h3>
+  <textarea id="unicodeInput" rows="4" placeholder="Enter Unicode string (e.g. \u0048\u0065\u006c\u006c\u006f)"></textarea>
+  <div class="output">
+    <button class="copyBtn" onclick="copyToClipboard('textOutput')">Copy</button>
+    <span id="textOutput"></span>
+  </div>
 
   <script>
-    function convertToUnicode() {
-      const input = document.getElementById("textInput").value;
+    const textInput = document.getElementById("textInput");
+    const unicodeInput = document.getElementById("unicodeInput");
+    const unicodeOutput = document.getElementById("unicodeOutput");
+    const textOutput = document.getElementById("textOutput");
+
+    textInput.addEventListener("input", () => {
+      const input = textInput.value;
       let result = "";
       for (let i = 0; i < input.length; i++) {
         result += "\\u" + input.charCodeAt(i).toString(16).padStart(4, '0');
       }
-      document.getElementById("outputArea").textContent = result;
+      unicodeOutput.textContent = result;
+    });
+
+    unicodeInput.addEventListener("input", () => {
+      const input = unicodeInput.value;
+      try {
+        const result = input.replace(/\\u([\dA-Fa-f]{4})/g, (match, grp) => String.fromCharCode(parseInt(grp, 16)));
+        textOutput.textContent = result;
+      } catch {
+        textOutput.textContent = "[Invalid Unicode format]";
+      }
+    });
+
+    function copyToClipboard(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Copied to clipboard!");
+      }).catch(() => {
+        alert("Failed to copy.");
+      });
     }
   </script>
+
 </body>
 </html>
